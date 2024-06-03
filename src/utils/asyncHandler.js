@@ -1,8 +1,8 @@
-export { asyncHandler }
+
 //const asyncHandler = (fn) => { () => {} }
-const asyncHandler = (requestHandler) => async(req,res,next) => {
+const asyncHandler = (requestHandler) => async(req,res,next) => {  // higher order function - ek function ko as a param and return kr ske
 try {
-    await fn(req,res,next)
+    await requestHandler(req,res,next)
 }
  catch (error) {
     res.status(err.code || 404 ).json({
@@ -10,6 +10,7 @@ try {
         message: err.message
   })}}
 
+  export { asyncHandler }
    // const asyncHandler=(requestHandler)=>{
     //    (req,res,next) => {
     //     Promise.resolve(requestHandler).
