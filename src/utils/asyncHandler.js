@@ -1,4 +1,4 @@
-
+// controller ko error free
 //const asyncHandler = (fn) => { () => {} }
 const asyncHandler = (requestHandler) => async(req,res,next) => {  // higher order function - ek function ko as a param and return kr ske
 try {
@@ -12,7 +12,7 @@ try {
 
   export { asyncHandler }
    // const asyncHandler=(requestHandler)=>{
-    //    (req,res,next) => {
+    //  return (req,res,next) => {
     //     Promise.resolve(requestHandler).
     //     reject((err) => next(err))
     // }}}
