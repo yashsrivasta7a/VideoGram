@@ -7,7 +7,7 @@ try {
  catch (error) {
     res.status(err.code || 404 ).json({
         success: false,
-        message: err.message
+        message: error.message
   })}}
 
   export { asyncHandler }

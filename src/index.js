@@ -21,4 +21,3 @@ connectDB().then(()=>{
 .catch((error)=>{
     console.log(`Connection failed with DataBase`,error);
 })
-
