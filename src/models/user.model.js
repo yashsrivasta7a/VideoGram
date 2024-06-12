@@ -27,23 +27,23 @@ const userSchema = new Schema(
       trim: true,
       index: true,
     },
-    avatar: {
-      type: String, //cloudinary url
-      required: true,
-    },
+    // avatar: {
+    //   type: String, //cloudinary url
+    //   // required: true,
+    // },
 
-    coverimage: {
-      type: String, //cloudinary url
-    },
-    watchHistory: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Video",
-      },
-    ],
+    // coverimage: {
+    //   type: String, //cloudinary url
+    // },
+    // watchHistory: [
+    //   {
+    //     type: Schema.Types.ObjectId,
+    //     ref: "Video",
+    //   },
+    // ],
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required:true,
     },
 
     refreshToken: {
