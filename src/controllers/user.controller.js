@@ -23,7 +23,7 @@ if (!email || !email.includes('@')) {
     return res.status(400).json({ error: 'Invalid email address' });
   }
 
-const existingUser = User.findOne({
+const existingUser = await User.findOne({
     $or: [{username},{email}]
 })
   if(existingUser){
