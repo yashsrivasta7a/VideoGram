@@ -5,6 +5,21 @@ import {uploadOnCloudinary} from "../utils/Cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";  
 import { response } from "express";
 
+const generateAccessAndRefreshTokens = async (userId)=>{
+  try {
+    
+    const user = await User.findById(userId)
+    const accessToken =  user.generateAccessToken()
+    const refreshToken = user.generateRefreshToken()
+    user.refreshToken = refreshToken //db m save hua code
+    await user.save({validateBeforeSave: false})
+
+    return { accessToken, refreshToken}
+  } catch (error) {
+    throw new ApiError(500,"Something Went wrong while generating tokens ")
+  }
+}
+
 const registerUser = asyncHandler ( async (req,res)=>{
 
 const {fullName,email,username,password}  =  req.body
@@ -66,7 +81,26 @@ const existingUser = await User.findOne({
  )
 })
 
+const loginUser = asyncHandler ( async (req,res)=>{
+  const {email,username,password} = req.body
 
+  if (!username || !email) {
+    throw new ApiError(400," username or email doesn't exist ")
+  }
+ const user = await User.findOne({
+  $or: [{email},{username}]
+})
+  if(!user){
+    throw new ApiError (404, " invalid user ")
+  }
 
+ const isPasswordValid = await user.isPasswordCorrect(password)
 
-export { registerUser, } 
+ if(!isPasswordValid){
+  throw new ApiError (404,"invalid password" )
+}
+
+const {accessToken,refreshToken} = await generateAccessAndRefreshTokens(user._id)
+
+})
+export { registerUser,loginUser } 
