@@ -104,13 +104,12 @@ const {accessToken,refreshToken} = await generateAccessAndRefreshTokens(user._id
 const loggedInUser = await User.findById(user._id).select("-password -refreshToken") // this is an optional step 
 
 
-  const options = {  // sending cookies
+const options = {  // sending cookies
     httpsOnly: true,
     secure : true //when both are true only server can modify it not frontend
 
   }
-
-  return res.status(200)
+return res.status(200)
   .cookie("accessToken", accessToken, options)
   .cookie("refreshToken",refreshToken, options)
   .json(
