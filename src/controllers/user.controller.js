@@ -83,7 +83,7 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body
 
-  if (!username || !email) {
+  if (!(username && email)) {
     throw new ApiError(400, " username or email doesn't exist ")
   }
   const user = await User.findOne({
@@ -104,7 +104,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 
   const options = {  // sending cookies
-    httpsOnly: true,
+    httpOnly: true,
     secure: true //when both are true only server can modify it not frontend
 
   }
@@ -122,23 +122,23 @@ const loginUser = asyncHandler(async (req, res) => {
     )
 })
 
-const logoutUser = asyncHandler(  
-async(req, res) => {
- await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $set: {
-        refreshToken: undefined
-      } // ek object mangta h jisse update kran rhta h 
-    }
+const logoutUser = asyncHandler(async(req, res) => {
+  await User.findByIdAndUpdate(
+      req.user._id,
+      {
+          $unset: {
+              refreshToken: 1 
+          }
+      },
+      {
+          new: true
+      }
   )
 
-
-  const options = {  // sending cookies
-    httpsOnly: true,
-    secure: true //when both are true only server can modify it not frontend
+  const options = {
+      httpOnly: true,
+      secure: true
   }
-
   return res.status(200)
   .clearCookie("accessToken", options)
   .clearCookie("refreshToken", options)
