@@ -5,6 +5,7 @@ import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { response } from "express";
 import { jwt } from "jsonwebtoken";
+import deleteOldImage from "../utils/deleteOldImage.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -218,13 +219,13 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Password Changed Successfully"));
+    .json(new ApiResponse(200, ,{},"Password Changed Successfully"));
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
-    .json(200, req.user, "Current User Fetched Successfully ");
+    .json(new ApiResponse(200, req.user, "Current User Fetched Successfully "));
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -233,7 +234,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Can't have Empty Fields");
   }
 
-  const user = User.findByIdAndUpdate(
+  const user =await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
@@ -258,8 +259,13 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
   if(!avatar.url){
     throw new ApiError(400,"Error while uploading an Avatar")
   }
+ 
+  const user = await User.findById(req.user?._id);
+  if (user.avatar) {
+    await deleteOldImage(user.avatar);
+  }
 
-  const user = await User.findByIdAndUpdate(
+  const Updateduser = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set:{
@@ -271,7 +277,7 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
 
   return res.status(200)
   .json(
-    new ApiResponse(200,user,"Avatar Updated Successfully")
+    new ApiResponse(200,Updateduser,"Avatar Updated Successfully")
   )
 
 });
@@ -285,8 +291,12 @@ const updateUserCoverimage = asyncHandler(async(req,res)=>{
   if(!coverImage.url){
     throw new ApiError(400,"Error while uploading an cover")
   }
+  const user = await User.findById(req.user?._id);
+  if (user.coverImage) {
+    await deleteOldImage(user.coverImage);
+  }
 
-  const user = await User.findByIdAndUpdate(
+  const Updateduser = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set:{
@@ -299,7 +309,7 @@ const updateUserCoverimage = asyncHandler(async(req,res)=>{
 
   return res.status(200)
   .json(
-    new ApiResponse(200,user,"Cover Image Updated Successfully")
+    new ApiResponse(200,Updateduser,"Cover Image Updated Successfully")
   )
 
 })
