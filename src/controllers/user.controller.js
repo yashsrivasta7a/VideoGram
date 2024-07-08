@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { response } from "express";
 import { jwt } from "jsonwebtoken";
 import deleteOldImage from "../utils/deleteOldImage.js";
+import { Subscription } from "../models/subscription.model.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -314,6 +315,74 @@ const updateUserCoverimage = asyncHandler(async(req,res)=>{
 
 })
 
+const getUserChannelProfile = asyncHandler(async(req,res)=>{
+  const {username} = req.params // url se nikalne se
+
+  if(!username?.trim()){ // hua toh trim optionally chain krdia
+    throw new ApiError(400, "Username is missing")
+  }
+  // User.find({username}) 
+  const channel = await User.aggregate([
+      {
+      $match :{
+        username: username.toLowerCase()
+    }},
+      {
+        $lookup:{
+          from: "subscriptions" ,
+		      localField: "_id" ,
+          foreignField: "channel",
+          as:"subscribers",
+        }
+      },
+
+
+      {
+        $lookup:{
+          from: "subscriptions" ,
+		      localField: "_id" ,
+          foreignField: "subscriber", //sub count
+          as:"subscribed to",
+        }
+      },
+
+      {
+        $addFields:{
+              subscribersCount:{
+                  $size :"$subscribers"
+              },
+              channelSubscribedToCount:{
+                  $size:"$subscribedto" // sub kisko krre
+              },
+
+
+              isSubscribed:{
+              $cond:{
+                if:{
+                  $in: [req.user?._id ,"subscribers"],
+                  then: true,
+                  else: false
+                }
+              } }
+        }
+      },
+      {
+        $project:{
+          fullName : 1,
+          username :1,
+          subscribersCount :1,
+          channelSubscribedToCount: 1,
+          avatar:1,
+          coverImage:1,
+          email:1,
+          
+
+
+        }
+      }
+      
+  ])
+})
 
 
 export {
@@ -325,5 +394,6 @@ export {
   getCurrentUser,
   updateAccountDetails,
   updateUserAvatar,
-  updateUserCoverimage
+  updateUserCoverimage,
+  getUserChannelProfile
 };
