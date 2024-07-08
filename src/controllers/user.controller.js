@@ -324,65 +324,58 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
   }
   // User.find({username}) 
   const channel = await User.aggregate([
-      {
-      $match :{
+    {
+      $match: {
         username: username.toLowerCase()
-    }},
-      {
-        $lookup:{
-          from: "subscriptions" ,
-		      localField: "_id" ,
-          foreignField: "channel",
-          as:"subscribers",
-        }
-      },
-
-
-      {
-        $lookup:{
-          from: "subscriptions" ,
-		      localField: "_id" ,
-          foreignField: "subscriber", //sub count
-          as:"subscribed to",
-        }
-      },
-
-      {
-        $addFields:{
-              subscribersCount:{
-                  $size :"$subscribers"
-              },
-              channelSubscribedToCount:{
-                  $size:"$subscribedto" // sub kisko krre
-              },
-
-
-              isSubscribed:{
-              $cond:{
-                if:{
-                  $in: [req.user?._id ,"subscribers"],
-                  then: true,
-                  else: false
-                }
-              } }
-        }
-      },
-      {
-        $project:{
-          fullName : 1,
-          username :1,
-          subscribersCount :1,
-          channelSubscribedToCount: 1,
-          avatar:1,
-          coverImage:1,
-          email:1,
-          
-
-
+      }
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers"
+      }
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedto" // Fix field name to match usage below
+      }
+    },
+    {
+      $addFields: {
+        subscribersCount: {
+          $size: "$subscribers"
+        },
+        channelSubscribedToCount: {
+          $size: "$subscribedto"
+        },
+        isSubscribed: {
+          $cond: {
+            if: { $in: [new mongoose.Types.ObjectId(req.user?._id), "$subscribers.subscriber"] }, // Correct field path
+            then: true,
+            else: false
+          }
         }
       }
-      
-  ])
+    },
+    {
+      $project: {
+        fullName: 1,
+        username: 1,
+        subscribersCount: 1,
+        channelSubscribedToCount: 1,
+        avatar: 1,
+        coverImage: 1,
+        email: 1
+      }
+    }
+  ]);
+  
+  
   if(!channel?.length){
     throw new ApiError(404, "channel doesnt exist")
   }
