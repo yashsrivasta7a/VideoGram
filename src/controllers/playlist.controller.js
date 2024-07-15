@@ -32,7 +32,6 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, userPlaylists, "User Playlists Fetched Successfully"))
 })
     //TODO: get user playlists
-})
 
 const getPlaylistById = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
